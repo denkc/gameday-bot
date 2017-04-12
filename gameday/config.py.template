@@ -1,4 +1,4 @@
-STATE_FILE = 'state.shelve'
+STATE_FILE = '/ROOT_PATH/gameday-bot/state.shelve'
 
 SLACK_API_TOKEN = 'paste-me-here'
 TEAM = 'sfn'
