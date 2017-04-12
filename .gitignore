@@ -7,6 +7,8 @@ config.py
 bin
 env
 lib
+build
+dist
 include
 *.egg-info
 
