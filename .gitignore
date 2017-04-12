@@ -1,0 +1,15 @@
+*.pyc
+config.py
+*.pg
+.Python
+.idea
+
+bin
+env
+lib
+include
+*.egg-info
+
+*.db
+*.shelve
+*.log

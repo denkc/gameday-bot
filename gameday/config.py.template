@@ -1,0 +1,19 @@
+STATE_FILE = 'state.shelve'
+
+SLACK_API_TOKEN = 'paste-me-here'
+TEAM = 'sfn'
+
+# requirement for the media XML to have in its keywords section
+KEYWORDS_REQUIRED = {
+    'subject': 'MLBCOM_REALTIME_HIGHLIGHT'
+}
+
+SLACK_CHANNEL = '#test-channel'
+SLACK_USERNAME = 'Gameday Bot'
+SLACK_EMOJI = ':baseball:'
+
+# will delete and resend all of today's game data if set to 0
+MESSAGE_AGE_THRESHOLD_DAYS = 2
+
+LOG_LEVEL = None  # default 'INFO'
+LOG_FORMAT = None  # default '%(name)s:%(levelname)s %(module)s:%(lineno)d %(asctime)s:  %(message)s'
