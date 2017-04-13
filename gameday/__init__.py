@@ -96,8 +96,6 @@ def run_day(xml_url, seen_ids):
 
 def main():
     gameday_state = shelve.open(STATE_FILE, writeback=True)
-    if not gameday_state:
-        gameday_state = {}
 
     for seen_id_date, seen_ids in gameday_state.items():
         cutoff_date = datetime.datetime.now() - datetime.timedelta(days=MESSAGE_AGE_THRESHOLD_DAYS)
@@ -117,6 +115,7 @@ def main():
 
     xml_url = get_xml_file()
     run_day(xml_url, gameday_state[datetime.date.today().isoformat()])
+    gameday_state.close()
     logging.info("Done.  Time to run: %s", time.time() - start_time)
 
 
