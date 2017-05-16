@@ -1,22 +1,17 @@
 import datetime
 import logging
-import posixpath
 import shelve
 import time
-from xml.etree import ElementTree
 
-from bs4 import BeautifulSoup
 from slackclient import SlackClient
-import requests
 
 from config import (
-    TEAM, KEYWORDS_REQUIRED, MESSAGE_AGE_THRESHOLD_DAYS,
+    TEAM, KEYWORDS_REQUIRED, NUM_DAYS_TO_CHECK, MESSAGE_AGE_THRESHOLD_DAYS,
     SLACK_API_TOKEN, SLACK_USERNAME, SLACK_EMOJI, SLACK_CHANNEL,
     STATE_FILE, LOG_LEVEL, LOG_FORMAT
 )
+from read_xml import open_xml, get_xml_file, match_required_keywords
 
-xml_root = 'http://gd2.mlb.com/components/game/mlb/year_{year}/month_{month:02d}/day_{day:02d}/'
-xml_file = '{gameday_folder}media/mobile.xml'
 
 slack_client = SlackClient(SLACK_API_TOKEN)
 
@@ -26,49 +21,6 @@ if LOG_FORMAT is None:
     LOG_FORMAT = '%(name)s:%(levelname)s %(module)s:%(lineno)d %(asctime)s:  %(message)s'
 
 logging.basicConfig(level=getattr(logging, LOG_LEVEL), format=LOG_FORMAT)
-
-
-def get_xml_file(date=None):
-    if date is None:
-        date = datetime.datetime.now()
-
-    day_folder = xml_root.format(year=date.year, month=date.month, day=date.day)
-    resp = requests.get(day_folder)
-    page_content = BeautifulSoup(resp.content, 'html.parser')
-
-    for anchor in page_content.find_all('a'):
-        link = anchor.get('href')
-        if link.startswith('gid') and TEAM in link:
-            game = link
-            break
-    else:
-        return None
-
-    return posixpath.join(day_folder, xml_file.format(gameday_folder=game))
-
-
-def open_xml(xml_url):
-    xml = requests.get(xml_url)
-    if xml.status_code == 404:
-        logging.info("Game XML not found; game has no highlights yet")
-        return None
-    return ElementTree.fromstring(xml.content)
-
-
-def match_required_keywords(media):
-    # provide the root media XML element
-    if not KEYWORDS_REQUIRED:
-        return True
-
-    keywords = media.find('keywords')
-    for keyword_type, keyword_value in KEYWORDS_REQUIRED.items():
-        type = keywords.find("keyword[@type='{keyword_type}']".format(
-            keyword_type=keyword_type,
-        ))
-        if type is None or type.get('value') != keyword_value:
-            return False
-
-    return True
 
 
 def run_day(xml_url, seen_ids):
@@ -97,6 +49,7 @@ def run_day(xml_url, seen_ids):
 def main():
     gameday_state = shelve.open(STATE_FILE, writeback=True)
 
+    # cleanup
     for seen_id_date, seen_ids in gameday_state.items():
         cutoff_date = datetime.datetime.now() - datetime.timedelta(days=MESSAGE_AGE_THRESHOLD_DAYS)
         if datetime.datetime.strptime(seen_id_date, '%Y-%m-%d') < cutoff_date:
@@ -108,13 +61,19 @@ def main():
                 )
             del gameday_state[seen_id_date]
 
-    if not gameday_state.has_key(datetime.date.today().isoformat()):
-        gameday_state[datetime.date.today().isoformat()] = {}
-
     start_time = time.time()
 
-    xml_url = get_xml_file()
-    run_day(xml_url, gameday_state[datetime.date.today().isoformat()])
+    days_to_check = [
+        datetime.datetime.now()-datetime.timedelta(days=days_back)
+        for days_back in range(NUM_DAYS_TO_CHECK-1, 0, -1)
+    ]
+
+    for dt in days_to_check: 
+        if not gameday_state.has_key(dt.date().isoformat()):
+            gameday_state[dt.date().isoformat()] = {}
+        xml_url = get_xml_file(dt)
+        run_day(xml_url, gameday_state[dt.date().isoformat()])
+
     gameday_state.close()
     logging.info("Done.  Time to run: %s", time.time() - start_time)
 

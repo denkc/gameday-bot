@@ -12,6 +12,10 @@ SLACK_CHANNEL = '#test-channel'
 SLACK_USERNAME = 'Gameday Bot'
 SLACK_EMOJI = ':baseball:'
 
+# including today, how many days to look back
+# default 2: include yesterday in case of highlights being posted after midnight
+NUM_DAYS_TO_CHECK = 2
+
 # will delete and resend all of today's game data if set to 0
 MESSAGE_AGE_THRESHOLD_DAYS = 2
 
