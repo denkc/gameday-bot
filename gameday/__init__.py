@@ -64,14 +64,15 @@ def main():
     start_time = time.time()
 
     days_to_check = [
-        datetime.datetime.now()-datetime.timedelta(days=days_back)
-        for days_back in range(NUM_DAYS_TO_CHECK-1, 0, -1)
+        datetime.datetime.now()-datetime.timedelta(days=days_back-1)
+        for days_back in range(NUM_DAYS_TO_CHECK, 0, -1)
     ]
 
     for dt in days_to_check: 
         if not gameday_state.has_key(dt.date().isoformat()):
             gameday_state[dt.date().isoformat()] = {}
         xml_url = get_xml_file(dt)
+        logging.info("Reading %s", xml_url)
         run_day(xml_url, gameday_state[dt.date().isoformat()])
 
     gameday_state.close()
