@@ -72,8 +72,9 @@ def main():
         if not gameday_state.has_key(dt.date().isoformat()):
             gameday_state[dt.date().isoformat()] = {}
         xml_url = get_xml_file(dt)
-        logging.info("Reading %s", xml_url)
-        run_day(xml_url, gameday_state[dt.date().isoformat()])
+        if xml_url is not None:
+            logging.info("Reading %s", xml_url)
+            run_day(xml_url, gameday_state[dt.date().isoformat()])
 
     gameday_state.close()
     logging.info("Done.  Time to run: %s", time.time() - start_time)
