@@ -1,13 +1,12 @@
 from setuptools import setup, find_packages
 
 requires = [
-    'bs4',
     'slackclient'
 ]
 
 setup(
     name="gameday-bot",
-    version='0.0.1',
+    version='0.2.0',
     author="Dennis Chan",
     packages=find_packages(),
     install_requires=requires,

@@ -10,8 +10,7 @@ from config import (
     SLACK_API_TOKEN, SLACK_USERNAME, SLACK_EMOJI, SLACK_CHANNEL,
     STATE_FILE, LOG_LEVEL, LOG_FORMAT
 )
-from read_xml import open_xml, get_xml_file, match_required_keywords
-
+from read_json import get_videos
 
 slack_client = SlackClient(SLACK_API_TOKEN)
 
@@ -23,27 +22,23 @@ if LOG_FORMAT is None:
 logging.basicConfig(level=getattr(logging, LOG_LEVEL), format=LOG_FORMAT)
 
 
-def run_day(xml_url, seen_ids):
-    highlights = open_xml(xml_url)
-    if highlights is None:
-        return False
-    for media in highlights.findall('media'):
-        if media.get('id') in seen_ids.keys():
-            continue
-        if not match_required_keywords(media):
+def run_day(dt, seen_ids):
+    videos = get_videos(dt)
+
+    for video_id, video_link, video_desc in videos:
+        if video_id in seen_ids.keys():
             continue
 
-        mp4_file = media.find("url[@playback-scenario='FLASH_1200K_640X360']")
         api_resp = slack_client.api_call(
             'chat.postMessage',
             channel=SLACK_CHANNEL,
             # higher quality version if it's there
-            text='{}\n{}'.format(media.find('bigblurb').text, mp4_file.text.replace('1200K', '2500K')),
+            text='{}\n{}'.format(video_desc, video_link),
             username=SLACK_USERNAME,
             icon_emoji=SLACK_EMOJI
         )
-        logging.info("Posted %s to %s with ts %s", media.get('id'), SLACK_CHANNEL, api_resp['ts'])
-        seen_ids[media.get('id')] = api_resp
+        logging.info("Posted %s to %s with ts %s", video_id, SLACK_CHANNEL, api_resp['ts'])
+        seen_ids[video_id] = api_resp
 
 
 def main():
@@ -71,10 +66,7 @@ def main():
     for dt in days_to_check: 
         if not gameday_state.has_key(dt.date().isoformat()):
             gameday_state[dt.date().isoformat()] = {}
-        xml_url = get_xml_file(dt)
-        if xml_url is not None:
-            logging.info("Reading %s", xml_url)
-            run_day(xml_url, gameday_state[dt.date().isoformat()])
+        run_day(dt, gameday_state[dt.date().isoformat()])
 
     gameday_state.close()
     logging.info("Done.  Time to run: %s", time.time() - start_time)

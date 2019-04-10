@@ -62,3 +62,28 @@ def match_required_keywords(media):
             return False
 
     return True
+
+
+def get_videos(dt):
+    xml_url = get_xml_file(dt)
+    if xml_url is None:
+        return
+
+    logging.info("Reading %s", xml_url)
+
+    highlights = open_xml(xml_url)
+    if highlights is None:
+        return False
+
+    videos = []
+
+    for media in highlights.findall('media'):
+        if not match_required_keywords(media):
+            continue
+
+        mp4_file = media.find("url[@playback-scenario='FLASH_1200K_640X360']").text.replace('1200K', '2500K')
+        description = media.find('bigblurb').text
+
+        videos.append((media.get('id'), mp4_file, description))
+
+    return videos
