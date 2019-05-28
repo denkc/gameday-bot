@@ -51,7 +51,7 @@ def get_game_highlights(game_id):
 def get_videos(dt):
     game_ids = get_game_ids(dt)
     if not game_ids:
-        return
+        return []
 
     logging.info("Reading %s", game_ids)
 
