@@ -57,9 +57,11 @@ def main():
             del gameday_state[seen_id_date]
 
     start_time = time.time()
+    start_date = datetime.datetime.now()
+    # start_date = datetime.datetime(2019, 7, 12)
 
     days_to_check = [
-        datetime.datetime.now()-datetime.timedelta(days=days_back-1)
+        start_date-datetime.timedelta(days=days_back-1)
         for days_back in range(NUM_DAYS_TO_CHECK, 0, -1)
     ]
 

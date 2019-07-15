@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 requires = [
-    'slackclient'
+    'slackclient==1.3.2'
 ]
 
 setup(
