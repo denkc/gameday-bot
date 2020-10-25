@@ -33,7 +33,7 @@ def run_day(dt, seen_ids):
             'chat.postMessage',
             channel=SLACK_CHANNEL,
             # higher quality version if it's there
-            text='{}\n{}'.format(video_desc, video_link),
+            text='{}\n{}'.format(video_desc.encode('utf-8'), video_link),
             username=SLACK_USERNAME,
             icon_emoji=SLACK_EMOJI
         )
