@@ -5,12 +5,12 @@ import time
 
 from slackclient import SlackClient
 
-from config import (
+from .config import (
     TEAM, KEYWORDS_REQUIRED, NUM_DAYS_TO_CHECK, MESSAGE_AGE_THRESHOLD_DAYS,
     SLACK_API_TOKEN, SLACK_USERNAME, SLACK_EMOJI, SLACK_CHANNEL,
     STATE_FILE, LOG_LEVEL, LOG_FORMAT
 )
-from read_json import get_videos
+from .read_json import get_videos
 
 slack_client = SlackClient(SLACK_API_TOKEN)
 
@@ -33,7 +33,7 @@ def run_day(dt, seen_ids):
             'chat.postMessage',
             channel=SLACK_CHANNEL,
             # higher quality version if it's there
-            text='{}\n{}'.format(video_desc.encode('utf-8'), video_link),
+            text='<{}|{}>'.format(video_link, video_desc),
             username=SLACK_USERNAME,
             icon_emoji=SLACK_EMOJI
         )
@@ -66,7 +66,7 @@ def main():
     ]
 
     for dt in days_to_check: 
-        if not gameday_state.has_key(dt.date().isoformat()):
+        if dt.date().isoformat() not in gameday_state:
             gameday_state[dt.date().isoformat()] = {}
         run_day(dt, gameday_state[dt.date().isoformat()])
 

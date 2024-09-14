@@ -3,7 +3,7 @@ import logging
 import json
 import requests
 
-from config import (
+from .config import (
     TEAM, LOG_LEVEL, LOG_FORMAT
 )
 
@@ -43,8 +43,12 @@ def get_game_highlights(game_id):
             continue
         for highlight_playback in highlight['playbacks']:
             if highlight_playback['name'] == 'mp4Avc':
-                highlights.append((highlight['mediaPlaybackId'], highlight_playback['url'], highlight['description']))
-                break
+                try:
+                    highlights.append((highlight['mediaPlaybackId'], highlight_playback['url'], highlight['description']))
+                except (Exception, e):
+                    print(e)
+                finally:
+                    break
 
     return highlights
 
