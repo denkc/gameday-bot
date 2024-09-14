@@ -44,7 +44,7 @@ def get_game_highlights(game_id):
         for highlight_playback in highlight['playbacks']:
             if highlight_playback['name'] == 'mp4Avc':
                 try:
-                    highlights.append((highlight['mediaPlaybackId'], highlight_playback['url'], highlight['description']))
+                    highlights.append((highlight['mediaPlaybackId'], highlight_playback['url'], highlight['title'], highlight['description']))
                 except (Exception, e):
                     print(e)
                 finally:

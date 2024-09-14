@@ -25,7 +25,7 @@ logging.basicConfig(level=getattr(logging, LOG_LEVEL), format=LOG_FORMAT)
 def run_day(dt, seen_ids):
     videos = get_videos(dt)
 
-    for video_id, video_link, video_desc in videos:
+    for video_id, video_link, video_title, video_desc in videos:
         if video_id in seen_ids.keys():
             continue
 
@@ -33,7 +33,7 @@ def run_day(dt, seen_ids):
             'chat.postMessage',
             channel=SLACK_CHANNEL,
             # higher quality version if it's there
-            text='<{}|{}>'.format(video_link, video_desc),
+            text='<{}|{}>\n{}'.format(video_link, video_title, video_desc),
             username=SLACK_USERNAME,
             icon_emoji=SLACK_EMOJI
         )
